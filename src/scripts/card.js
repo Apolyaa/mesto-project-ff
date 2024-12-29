@@ -1,4 +1,4 @@
-export function getCard(card, deleteFuction, likeFuction, showImageFuction){
+export function getCard(card, deleteFuction, likeFuction, openImagePopupFunction){
     const cardTemplate = document.querySelector('#card-template').content;
     const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
 
@@ -11,7 +11,7 @@ export function getCard(card, deleteFuction, likeFuction, showImageFuction){
         likeFuction(evt);
     }); 
     cardElement.querySelector('.card__image').addEventListener('click',function(){
-        showImageFuction(cardElement);
+        openImagePopupFunction(card);
     } ); 
     return cardElement;
 }
