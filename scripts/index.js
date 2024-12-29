@@ -1,20 +1,30 @@
+import '../pages/index.css'; 
+import {initialCards} from './cards.js'
+import avatarImage from '../images/avatar.jpg'
+import {getCard, likeFuction, deleteFuction} from './card.js'
+import {openPopup, showImageFunction} from './modal.js'
+
+const profileImage = document.querySelector('.profile__image');
+profileImage.style.backgroundImage = "url('" + avatarImage + "')";
+
 const placesList = document.querySelector('.places__list');
-const deleteFuction = function(){
-    const listItem = this.closest('.card');
-    listItem.remove();
-};
-
-function getCard(card, deleteFuction){
-    const cardTemplate = document.querySelector('#card-template').content;
-    const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
-
-    cardElement.querySelector('.card__image').src = card.link;
-    cardElement.querySelector('.card__title').textContent = card.name;
-    cardElement.querySelector('.card__delete-button').addEventListener('click', deleteFuction); 
-    return cardElement;
-}
-
 
 initialCards.forEach(item =>
-    placesList.append(getCard(item, deleteFuction))
+    placesList.append(getCard(item, deleteFuction, likeFuction, showImageFunction))
 );
+
+const profileInfo = document.querySelector('.profile__info');
+
+const editPopup = document.querySelector('.popup_type_edit');
+const editProfileButton = profileInfo.querySelector('.profile__edit-button');
+editPopup.classList.add('popup_is-animated');
+editProfileButton.addEventListener('click',(evt) => openPopup(evt, editPopup));
+
+
+const newCardPopup = document.querySelector('.popup_type_new-card');
+const newCardButton = document.querySelector('.profile__add-button');
+newCardPopup.classList.add('popup_is-animated');
+newCardButton.addEventListener('click',(evt) => openPopup(evt, newCardPopup));
+
+const imagePopup = document.querySelector('.popup_type_image');
+imagePopup.classList.add('popup_is-animated');
