@@ -3,6 +3,7 @@ import {initialCards} from './cards.js'
 import avatarImage from '../images/avatar.jpg'
 import {getCard, likeFuction, deleteFuction} from './card.js'
 import {openPopup, closePopup} from './modal.js'
+import {enableValidation, toggleButtonState, hideInputError} from './validation.js'
 
 const profileImage = document.querySelector('.profile__image');
 profileImage.style.backgroundImage = "url('" + avatarImage + "')";
@@ -53,10 +54,28 @@ function openEditPopupFunction(popup){
     inputName.value = profileInfo.querySelector('.profile__title').textContent;
     inputDescription.value = profileInfo.querySelector('.profile__description').textContent;
     openPopup(popup);
+    const form = popup.querySelector(elementsClasses.formSelector);
+    clearValidation(form, {clearInputs: false, disableButton: false});
 };
 
 function openNewCardPopupFunction(popup){
     openPopup(popup);
+    const form = popup.querySelector(elementsClasses.formSelector);
+    clearValidation(form, {clearInputs: true, disableButton: true});
+};
+
+const clearValidation = (form, validationConfig) => {
+    const inputs = Array.from(form.querySelectorAll(elementsClasses.inputSelector));
+    const button = form.querySelector(elementsClasses.submitButtonSelector);
+    inputs.forEach((item) => {
+        hideInputError(form, item, elementsClasses);
+        if(validationConfig.clearInputs)
+            item.value = "";
+    });
+    if(validationConfig.disableButton){
+        toggleButtonState(inputs, button, elementsClasses);
+    };
+        
 };
 
 const profileInfo = document.querySelector('.profile__info');
@@ -81,3 +100,15 @@ newCardForm.addEventListener('submit', function(evt){
 
 const imagePopup = document.querySelector('.popup_type_image');
 imagePopup.classList.add('popup_is-animated');
+
+const elementsClasses = {
+    formSelector: '.popup__form',
+    inputSelector: '.popup__input',
+    submitButtonSelector: '.popup__button',
+    inactiveButtonClass: 'form__submit_inactive',
+    inputErrorClass: 'popup__input_type_error',
+    errorClass: 'popup__input-error_active'
+  }
+ // включение валидации вызовом enableValidation
+// все настройки передаются при вызове
+enableValidation(elementsClasses);
