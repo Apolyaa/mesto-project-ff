@@ -1,40 +1,92 @@
 import '../pages/index.css'; 
-import {initialCards} from './cards.js'
-import avatarImage from '../images/avatar.jpg'
 import {getCard, likeFuction, deleteFuction} from './card.js'
 import {openPopup, closePopup} from './modal.js'
 import {enableValidation, toggleButtonState, hideInputError} from './validation.js'
+import {getProfile, getInitialCards, updateProfile, addCard, updateAvatar} from './api.js'
 
-const profileImage = document.querySelector('.profile__image');
-profileImage.style.backgroundImage = "url('" + avatarImage + "')";
+const setProfileTitle = (name) => {
+    const profileTitle = document.querySelector('.profile__title');
+    profileTitle.textContent = name;
+};
+const setProfileDescription = (about) => {
+    const profileDescription = document.querySelector('.profile__description');
+    profileDescription.textContent = about;
+};
+const setProfileImage = (avatar) => {
+    const profileImage = document.querySelector('.profile__image');
+    profileImage.style.backgroundImage = "url('" + avatar + "')";
+};
+const setProfileInformation = (profileInformation) => {
+    setProfileTitle(profileInformation.name);
+    setProfileDescription(profileInformation.about);
+    setProfileImage(profileInformation.avatar);
+};
 
-const placesList = document.querySelector('.places__list');
+Promise.all([getProfile(), getInitialCards()])
+  .then(([profileInformation, initialCards]) => {
+    setProfileInformation(profileInformation);
+    const placesList = document.querySelector('.places__list'); ``
+    initialCards.forEach(item =>
+        placesList.append(getCard(item, deleteFuction, likeFuction, openImagePopupFunction, 
+            profileInformation._id))
+    );
+  })
+  .catch((err) => {
+    console.log(err); // выводим ошибку в консоль
+  });
 
-initialCards.forEach(item =>
-    placesList.append(getCard(item, deleteFuction, likeFuction, openImagePopupFunction))
-);
+  function saveChanges(popup){
+    const saveButton = popup.querySelector('.popup__button');
+    saveButton.innerText = 'Сохранение...';
+}
 
 function handleEditFormSubmit(evt, popup) {
     evt.preventDefault(); 
+    saveChanges(popup);
     const inputName = popup.querySelector('.popup__input_type_name'); 
     const inputDescription = popup.querySelector('.popup__input_type_description');
     const profileInfo = document.querySelector('.profile__info');
     profileInfo.querySelector('.profile__title').textContent = inputName.value;
     profileInfo.querySelector('.profile__description').textContent = inputDescription.value;
+    updateProfile(inputName.value, inputDescription.value)
+    .then((result) => {
+        console.log(result);
+    })
+    .catch((err) => {
+        console.log(err); // выводим ошибку в консоль
+      });
     closePopup();
 }
 
 function handleAddCardFormSubmit(evt, popup) {
     evt.preventDefault(); 
+    saveChanges(popup);
     const inputName = popup.querySelector('.popup__input_type_card-name'); 
     const inputUrl = popup.querySelector('.popup__input_type_url');
-    const newCard = {
-        name: inputName.value,
-        link: inputUrl.value,
-      };
-    const placesList = document.querySelector('.places__list');
-    placesList.prepend(getCard(newCard, deleteFuction, likeFuction, openImagePopupFunction));
+      addCard(inputName.value, inputUrl.value)
+      .then((result) => {
+        const placesList = document.querySelector('.places__list');
+        placesList.prepend(getCard(result, deleteFuction, likeFuction, openImagePopupFunction, result.owner._id));
+      })
+      .catch((err) => {
+          console.log(err); // выводим ошибку в консоль
+        });
     inputName.value = "";
+    inputUrl.value = "";
+    closePopup();
+}
+
+function handleUpdateAvatarFormSubmit(evt, popup) {
+    evt.preventDefault(); 
+    saveChanges(popup);
+    const inputUrl = popup.querySelector('.popup__input_type_url');
+    updateAvatar(inputUrl.value)
+      .then((result) => {
+        setProfileImage(result.avatar);
+      })
+      .catch((err) => {
+          console.log(err); // выводим ошибку в консоль
+        });
     inputUrl.value = "";
     closePopup();
 }
@@ -59,6 +111,12 @@ function openEditPopupFunction(popup){
 };
 
 function openNewCardPopupFunction(popup){
+    openPopup(popup);
+    const form = popup.querySelector(elementsClasses.formSelector);
+    clearValidation(form, {clearInputs: true, disableButton: true});
+};
+
+function openUpdateAvatarPopupFunction(popup){
     openPopup(popup);
     const form = popup.querySelector(elementsClasses.formSelector);
     clearValidation(form, {clearInputs: true, disableButton: true});
@@ -96,6 +154,15 @@ newCardPopup.classList.add('popup_is-animated');
 newCardButton.addEventListener('click',() => openNewCardPopupFunction(newCardPopup));
 newCardForm.addEventListener('submit', function(evt){
     handleAddCardFormSubmit(evt, newCardPopup);
+});
+
+const updateAvatarPopup = document.querySelector('.popup_type_update-avatar');
+const updateAvatarButton = document.querySelector('.profile__image');
+const updateAvatarForm = updateAvatarPopup.querySelector('.popup__form'); 
+updateAvatarPopup.classList.add('popup_is-animated');
+updateAvatarButton.addEventListener('click',() => openUpdateAvatarPopupFunction(updateAvatarPopup));
+updateAvatarForm.addEventListener('submit', function(evt){
+    handleUpdateAvatarFormSubmit(evt, updateAvatarPopup);
 });
 
 const imagePopup = document.querySelector('.popup_type_image');
