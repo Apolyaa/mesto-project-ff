@@ -11,6 +11,9 @@ export function getCard(card, deleteFuction, likeFuction, openImagePopupFunction
     if(userId != card.owner._id)
         cardElement.querySelector('.card__delete-button').style.display = 'none';
 
+    if(card.likes.some((element) => {return element._id === userId;}))
+        cardElement.querySelector('.card__like-button').classList.add('card__like-button_is-active');
+
     cardElement.querySelector('.card__delete-button').addEventListener('click',function(){
         deleteFuction(cardElement, card._id);
     } ); 
