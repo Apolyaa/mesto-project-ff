@@ -14,7 +14,7 @@ const hasInvalidInput = (inputList) => {
   // Функция принимает массив полей ввода
 // и элемент кнопки, состояние которой нужно менять
 
-export const toggleButtonState = (inputList, buttonElement, elementsClasses) => {
+const toggleButtonState = (inputList, buttonElement, elementsClasses) => {
     // Если есть хотя бы один невалидный инпут
     if (hasInvalidInput(inputList)) {
       // сделай кнопку неактивной
@@ -36,7 +36,7 @@ const showInputError = (formElement, inputElement, errorMessage, elementsClasses
     errorElement.classList.add(elementsClasses.errorClass);
   };
   
-  export const hideInputError = (formElement, inputElement, elementsClasses) => {
+const hideInputError = (formElement, inputElement, elementsClasses) => {
     // Находим элемент ошибки
     const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
     // Остальной код такой же
@@ -90,7 +90,7 @@ const isValid = (formElement, inputElement, elementsClasses) => {
     });
   };
 
-  export const enableValidation = (elementsClasses) => {
+export const enableValidation = (elementsClasses) => {
     // Найдём все формы с указанным классом в DOM,
     // сделаем из них массив методом Array.from
     console.log(elementsClasses);
@@ -103,3 +103,16 @@ const isValid = (formElement, inputElement, elementsClasses) => {
       setEventListeners(formElement, elementsClasses);
     });
   };
+  
+  export function clearValidation (form, validationConfig, elementsClasses){
+    const inputs = Array.from(form.querySelectorAll(elementsClasses.inputSelector));
+    const button = form.querySelector(elementsClasses.submitButtonSelector);
+    inputs.forEach((item) => {
+        hideInputError(form, item, elementsClasses);
+        if(validationConfig.clearInputs)
+            item.value = "";
+    });
+    if(validationConfig.disableButton){
+        toggleButtonState(inputs, button, elementsClasses);
+    };      
+};

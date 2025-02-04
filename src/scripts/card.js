@@ -24,34 +24,26 @@ export function getCard(card, deleteFuction, likeFuction, openImagePopupFunction
 }
 
 export function likeFuction(evt, cardElement, cardId){
-    evt.target.classList.toggle('card__like-button_is-active');
-    if(evt.target.classList.contains('card__like-button_is-active')){
-        addLike(cardId)
-        .then((result) => {
-            cardElement.querySelector('.likes-count').textContent = result.likes.length;
-        })
-        .catch((err) => {
-            console.log(err); // выводим ошибку в консоль
-          });
-    }
-    else{
-        deleteLike(cardId)
-        .then((result) => {
-            cardElement.querySelector('.likes-count').textContent = result.likes.length;
-        })
-        .catch((err) => {
-            console.log(err); // выводим ошибку в консоль
-          });
-    }
+    const res = evt.target.classList.contains('card__like-button_is-active') 
+        ? deleteLike(cardId) 
+        : addLike(cardId);
+
+    res.then((result) => {
+        cardElement.querySelector('.likes-count').textContent = result.likes.length;
+        evt.target.classList.toggle('card__like-button_is-active');
+    })
+    .catch((err) => {
+        console.log(err); // выводим ошибку в консоль
+      });    
 };
 
 export function deleteFuction(cardElement, cardId) {  
     deleteCard(cardId)
     .then((result) => {
         console.log(result);
+        cardElement.remove();
     })
     .catch((err) => {
         console.log(err); // выводим ошибку в консоль
       });
-    cardElement.remove();
  };

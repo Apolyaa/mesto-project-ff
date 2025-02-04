@@ -1,7 +1,7 @@
 import '../pages/index.css'; 
 import {getCard, likeFuction, deleteFuction} from './card.js'
 import {openPopup, closePopup} from './modal.js'
-import {enableValidation, toggleButtonState, hideInputError} from './validation.js'
+import {enableValidation, clearValidation} from './validation.js'
 import {getProfile, getInitialCards, updateProfile, addCard, updateAvatar} from './api.js'
 
 const setProfileTitle = (name) => {
@@ -35,9 +35,14 @@ Promise.all([getProfile(), getInitialCards()])
     console.log(err); // выводим ошибку в консоль
   });
 
-  function saveChanges(popup){
+function saveChanges(popup){
     const saveButton = popup.querySelector('.popup__button');
     saveButton.innerText = 'Сохранение...';
+}
+
+function setDefaultCondition(popup){
+    const saveButton = popup.querySelector('.popup__button');
+    saveButton.innerText = 'Сохранить';
 }
 
 function handleEditFormSubmit(evt, popup) {
@@ -51,11 +56,14 @@ function handleEditFormSubmit(evt, popup) {
     updateProfile(inputName.value, inputDescription.value)
     .then((result) => {
         console.log(result);
+        closePopup();
     })
     .catch((err) => {
         console.log(err); // выводим ошибку в консоль
-      });
-    closePopup();
+      })
+    .finally(() => {
+        setDefaultCondition(popup);
+    });
 }
 
 function handleAddCardFormSubmit(evt, popup) {
@@ -67,13 +75,13 @@ function handleAddCardFormSubmit(evt, popup) {
       .then((result) => {
         const placesList = document.querySelector('.places__list');
         placesList.prepend(getCard(result, deleteFuction, likeFuction, openImagePopupFunction, result.owner._id));
+        inputName.value = "";
+        inputUrl.value = "";
+        closePopup();
       })
       .catch((err) => {
           console.log(err); // выводим ошибку в консоль
         });
-    inputName.value = "";
-    inputUrl.value = "";
-    closePopup();
 }
 
 function handleUpdateAvatarFormSubmit(evt, popup) {
@@ -83,12 +91,12 @@ function handleUpdateAvatarFormSubmit(evt, popup) {
     updateAvatar(inputUrl.value)
       .then((result) => {
         setProfileImage(result.avatar);
+        inputUrl.value = "";
+        closePopup();
       })
       .catch((err) => {
           console.log(err); // выводим ошибку в консоль
         });
-    inputUrl.value = "";
-    closePopup();
 }
 
 function openImagePopupFunction(card){
@@ -107,33 +115,19 @@ function openEditPopupFunction(popup){
     inputDescription.value = profileInfo.querySelector('.profile__description').textContent;
     openPopup(popup);
     const form = popup.querySelector(elementsClasses.formSelector);
-    clearValidation(form, {clearInputs: false, disableButton: false});
+    clearValidation(form, {clearInputs: false, disableButton: false}, elementsClasses);
 };
 
 function openNewCardPopupFunction(popup){
     openPopup(popup);
     const form = popup.querySelector(elementsClasses.formSelector);
-    clearValidation(form, {clearInputs: true, disableButton: true});
+    clearValidation(form, {clearInputs: true, disableButton: true}, elementsClasses);
 };
 
 function openUpdateAvatarPopupFunction(popup){
     openPopup(popup);
     const form = popup.querySelector(elementsClasses.formSelector);
-    clearValidation(form, {clearInputs: true, disableButton: true});
-};
-
-const clearValidation = (form, validationConfig) => {
-    const inputs = Array.from(form.querySelectorAll(elementsClasses.inputSelector));
-    const button = form.querySelector(elementsClasses.submitButtonSelector);
-    inputs.forEach((item) => {
-        hideInputError(form, item, elementsClasses);
-        if(validationConfig.clearInputs)
-            item.value = "";
-    });
-    if(validationConfig.disableButton){
-        toggleButtonState(inputs, button, elementsClasses);
-    };
-        
+    clearValidation(form, {clearInputs: true, disableButton: true}, elementsClasses);
 };
 
 const profileInfo = document.querySelector('.profile__info');
