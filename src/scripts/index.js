@@ -60,7 +60,7 @@ function handleEditFormSubmit(evt, popup) {
     })
     .catch((err) => {
         console.log(err); // выводим ошибку в консоль
-      })
+    })
     .finally(() => {
         setDefaultCondition(popup);
     });
@@ -81,6 +81,9 @@ function handleAddCardFormSubmit(evt, popup) {
       })
       .catch((err) => {
           console.log(err); // выводим ошибку в консоль
+        })
+        .finally(() => {
+            setDefaultCondition(popup);
         });
 }
 
@@ -96,6 +99,9 @@ function handleUpdateAvatarFormSubmit(evt, popup) {
       })
       .catch((err) => {
           console.log(err); // выводим ошибку в консоль
+        })    
+        .finally(() => {
+            setDefaultCondition(popup);
         });
 }
 
